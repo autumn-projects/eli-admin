@@ -23,3 +23,17 @@ export function logout() {
   })
 }
 
+export function getUserBalance() {
+  return request({
+    url: '/user/balance',
+    method: 'get'
+  })
+}
+
+export function getUserList() {
+  return request({
+    url: '/user/list',
+    method: 'get'
+  })
+}
+

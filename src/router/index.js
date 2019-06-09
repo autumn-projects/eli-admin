@@ -7,10 +7,10 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
-import componentsRouter from './modules/components'
-import chartsRouter from './modules/charts'
-import tableRouter from './modules/table'
-import nestedRouter from './modules/nested'
+// import componentsRouter from './modules/components'
+// import chartsRouter from './modules/charts'
+// import tableRouter from './modules/table'
+// import nestedRouter from './modules/nested'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -82,7 +82,7 @@ export const constantRoutes = [
         meta: { title: 'dashboard', icon: 'dashboard', noCache: true, affix: true }
       }
     ]
-  },
+  }
   // {
   //   path: '/documentation',
   //   component: Layout,
@@ -168,6 +168,32 @@ export const asyncRoutes = [
   //     }
   //   ]
   // },
+
+  {
+    path: '/user',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/user/index'),
+        name: 'User',
+        meta: { title: '用户', icon: 'peoples', noCache: true, roles: ['admin'] }
+      }
+    ]
+  },
+
+  {
+    path: '/order',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/order/index'),
+        name: 'Order',
+        meta: { title: '订单', icon: 'shopping', noCache: true }
+      }
+    ]
+  },
 
   /** when your routing map is too long, you can split it into small modules **/
   // componentsRouter,
