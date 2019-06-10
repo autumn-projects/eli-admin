@@ -77,6 +77,9 @@ export default {
       getOrderReport().then(response => {
         this.amount = response.data.amount
         this.price = response.data.price
+
+        console.log(response.data.amount)
+        console.log(response.data.price)
       })
     },
     handleSetLineChartData(type) {
