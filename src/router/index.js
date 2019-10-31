@@ -170,6 +170,19 @@ export const asyncRoutes = [
   // },
 
   {
+    path: '/account',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/account/index'),
+        name: 'Account',
+        meta: { title: '账户', icon: 'peoples', noCache: true, roles: ['editor'] }
+      }
+    ]
+  },
+
+  {
     path: '/user',
     component: Layout,
     children: [

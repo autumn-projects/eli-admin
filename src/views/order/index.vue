@@ -57,6 +57,7 @@
 
 <script>
 import { fetchPv, createArticle, updateArticle } from '@/api/article'
+import { getUserList } from '@/api/user'
 import { getOrderList } from '@/api/order'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
@@ -158,7 +159,7 @@ export default {
     }
   },
   created() {
-    this.getList()
+    this.getUserList()
   },
   methods: {
     getList() {
@@ -168,6 +169,13 @@ export default {
       getOrderList(params).then(response => {
         this.list = response.data.content
         this.total = response.data.total
+        this.listLoading = false
+      })
+    },
+    getUserList() {
+      this.listLoading = true
+      getUserList().then(response => {
+        console.log(response)
         this.listLoading = false
       })
     },

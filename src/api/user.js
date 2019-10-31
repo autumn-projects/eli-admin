@@ -10,29 +10,14 @@ export function login(data) {
 
 export function getInfo(token) {
   return request({
-    url: '/service-auth/info/' + token,
+    url: `/service-auth/info/${token}`,
     method: 'get'
   })
 }
 
 export function logout() {
   return request({
-    url: '/user/logout',
+    url: '/service-auth/logout',
     method: 'post'
   })
 }
-
-export function getUserBalance() {
-  return request({
-    url: '/user/balance',
-    method: 'get'
-  })
-}
-
-export function getUserList() {
-  return request({
-    url: '/user/list',
-    method: 'get'
-  })
-}
-
