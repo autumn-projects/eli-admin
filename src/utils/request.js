@@ -6,7 +6,7 @@ import { getToken } from '@/utils/auth'
 // create an axios instance
 const service = axios.create({
   // baseURL: process.env.VUE_APP_BASE_API, // api 的 base_url
-  baseURL: 'http://interface-test.gloria.com.cn:8080',
+  baseURL: 'http://interface-test.gloria.com.cn:10002',
   withCredentials: true, // 跨域请求时发送 cookies
   timeout: 5000 // request timeout
 })

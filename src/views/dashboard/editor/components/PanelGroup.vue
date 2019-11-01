@@ -1,6 +1,6 @@
 <template>
   <el-row :gutter="40" class="panel-group">
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+    <!-- <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
         <div class="card-panel-icon-wrapper icon-people">
           <svg-icon icon-class="money" class-name="card-panel-icon" />
@@ -12,7 +12,7 @@
           <count-to :start-val="0" :end-val="balance" :duration="1000" class="card-panel-num" />
         </div>
       </div>
-    </el-col>
+    </el-col> -->
     <!-- <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('messages')">
         <div class="card-panel-icon-wrapper icon-message">
@@ -30,13 +30,9 @@
 </template>
 
 <script>
-import CountTo from 'vue-count-to'
 import { getUserBalance } from '@/api/user'
 
 export default {
-  components: {
-    CountTo
-  },
   data() {
     return {
       balance: 0

@@ -21,3 +21,18 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function getUserList() {
+  return request({
+    url: '/service-chs/user/list',
+    method: 'get'
+  })
+}
+
+export function updateSysUser(data) {
+  return request({
+    url: '/service-chs/user/update',
+    method: 'post',
+    data
+  })
+}

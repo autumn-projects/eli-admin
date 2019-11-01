@@ -1,262 +1,155 @@
 <template>
   <div class="app-container">
     <el-table
-      :key="tableKey"
-      v-loading="listLoading"
       :data="list"
       border
       fit
       highlight-current-row
       style="width: 100%;"
-      @sort-change="sortChange"
     >
-      <el-table-column label="商户编号" prop="id" sortable="custom" align="center">
+      <el-table-column label="编号" prop="id" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.userId }}</span>
+          <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="商户名称" align="center">
+      <el-table-column label="类型" class-name="status-col">
         <template slot-scope="scope">
-          <span>{{ scope.row.name }}</span>
+          <el-tag type="success">{{ getAccountDiscribe(scope.row.type) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="商户余额" align="center">
+      <el-table-column label="CPU" prop="cpu" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.balance }}</span>
+          <span>{{ scope.row.cpuId }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="MAC" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.macAddress }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" align="center">
+        <template slot-scope="scope">
+          <span>{{ strToDate(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="结束时间" align="center">
+        <template slot-scope="scope">
+          <span>{{ strToDate(scope.row.endTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="备注" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.remark }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
+        <template slot-scope="{row}">
+          <el-button type="primary" size="mini" @click="handleUpdate(row)">
+            {{ $t('table.edit') }}
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <el-dialog title="修改" :visible.sync="dialogUpdateVisible">
+      <el-form ref="dataForm" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="编号" prop="userId">
+          <el-input v-model="dialogInfo.userId" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="dialogInfo.remark" />
+        </el-form-item>
+        <el-form-item label="结束时间" prop="endDate">
+          <el-date-picker v-model="dialogInfo.endDate" type="datetime" placeholder="Please pick a date" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="updateData()">
+          {{ $t('table.confirm') }}
+        </el-button>
+        <el-button @click="dialogUpdateVisible = false">
+          {{ $t('table.cancel') }}
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { fetchPv, createArticle, updateArticle } from '@/api/article'
-import { getUserList } from '@/api/user'
-import waves from '@/directive/waves' // Waves directive
-import { parseTime } from '@/utils'
-import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
-]
-
-// arr to obj ,such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.key] = cur.display_name
-  return acc
-}, {})
+import { getUserList, updateSysUser } from '@/api/user'
 
 export default {
-  name: 'ComplexTable',
-  components: { Pagination },
-  directives: { waves },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
-      }
-      return statusMap[status]
-    },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
-    }
-  },
   data() {
     return {
-      tableKey: 0,
       list: null,
-      total: 0,
-      listLoading: true,
-      listQuery: {
-        page: 1,
-        limit: 20,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
-      },
-      importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
-      sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      statusOptions: ['published', 'draft', 'deleted'],
-      showReviewer: false,
-      temp: {
-        id: undefined,
-        importance: 1,
+      dialogUpdateVisible: false,
+      dialogInfo: {
+        userId: '',
         remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
-      rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
-      },
-      downloadLoading: false
+        endDate: ''
+      }
     }
   },
   created() {
-    this.getList()
+    this.getUserList()
   },
   methods: {
-    getList() {
-      this.listLoading = true
+    getUserList() {
       getUserList().then(response => {
         this.list = response.data
-        // this.total = this.list.length
-        this.listLoading = false
+        console.log(response)
       })
     },
-    handleFilter() {
-      this.listQuery.page = 1
-      this.getList()
-    },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作成功',
-        type: 'success'
-      })
-      row.status = status
-    },
-    sortChange(data) {
-      const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
+    getAccountDiscribe(type) {
+      if (type === 1) return '大众'
+      if (type === 2) return '奥迪'
+      if (type === 3) return '斯柯达'
     },
     handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+      this.dialogInfo.userId = row.id
+      this.dialogInfo.remark = row.remark
+      this.dialogInfo.endDate = row.endTime
+      this.dialogUpdateVisible = true
     },
     updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v)
-                this.list.splice(index, 1, this.temp)
-                break
-              }
-            }
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
+      this.dialogInfo.endDate = this.dateFtt('yyyy-MM-dd hh:mm:ss', new Date(this.dialogInfo.endDate))
+      updateSysUser(this.dialogInfo).then(response => {
+        this.dialogUpdateVisible = false
+        if (response.code === 1) {
+          this.$message({
+            message: '操作成功',
+            type: 'success'
           })
+          this.getUserList()
         }
       })
     },
-    handleDelete(row) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
-      })
-      const index = this.list.indexOf(row)
-      this.list.splice(index, 1)
+    strToDate(date) {
+      if (date === null) {
+        return null
+      } else {
+        return this.dateFtt('yyyy-MM-dd hh:mm:ss', new Date(date))
+      }
     },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
-      })
-    },
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-        const data = this.formatJson(filterVal, this.list)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
-      })
-    },
-    formatJson(filterVal, jsonData) {
-      return jsonData.map(v => filterVal.map(j => {
-        if (j === 'timestamp') {
-          return parseTime(v[j])
-        } else {
-          return v[j]
+    dateFtt(fmt, date) {
+      var o = {
+        'M+': date.getMonth() + 1,
+        'd+': date.getDate(),
+        'h+': date.getHours(),
+        'm+': date.getMinutes(),
+        's+': date.getSeconds(),
+        'q+': Math.floor((date.getMonth() + 3) / 3),
+        'S': date.getMilliseconds()
+      }
+      if (/(y+)/.test(fmt)) {
+        fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length))
+      }
+      for (var k in o) {
+        if (new RegExp('(' + k + ')').test(fmt)) {
+          fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
         }
-      }))
+      }
+      return fmt
     }
   }
 }

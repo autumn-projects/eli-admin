@@ -78,9 +78,9 @@ export default {
       })
     },
     getAccountDiscribe(type) {
-      if (type === 1) return 'a'
-      if (type === 2) return 'b'
-      if (type === 3) return 'c'
+      if (type === 1) return '大众'
+      if (type === 2) return '奥迪'
+      if (type === 3) return '斯柯达'
     },
     handleUpdate(row) {
       this.dialogInfo = row
@@ -94,6 +94,7 @@ export default {
             message: '操作成功',
             type: 'success'
           })
+          this.getAccountList()
         }
       })
     }

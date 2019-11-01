@@ -177,7 +177,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/account/index'),
         name: 'Account',
-        meta: { title: '账户', icon: 'peoples', noCache: true, roles: ['editor'] }
+        meta: { title: '账户', icon: 'table', noCache: true, roles: ['editor'] }
       }
     ]
   },
@@ -190,20 +190,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/user/index'),
         name: 'User',
-        meta: { title: '用户', icon: 'peoples', noCache: true, roles: ['admin'] }
-      }
-    ]
-  },
-
-  {
-    path: '/order',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/order/index'),
-        name: 'Order',
-        meta: { title: '订单', icon: 'shopping', noCache: true }
+        meta: { title: '用户', icon: 'peoples', noCache: true, roles: ['editor'] }
       }
     ]
   },
