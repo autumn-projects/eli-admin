@@ -27,6 +27,11 @@
           <span>{{ scope.row.macAddress }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="DISKID" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.diskId }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center">
         <template slot-scope="scope">
           <span>{{ strToDate(scope.row.createTime) }}</span>
