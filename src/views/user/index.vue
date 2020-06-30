@@ -52,6 +52,9 @@
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             {{ $t('table.edit') }}
           </el-button>
+          <el-button type="danger" size="mini" @click="deleteData(row)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -81,7 +84,7 @@
 </template>
 
 <script>
-import { getUserList, updateSysUser } from '@/api/user'
+import { getUserList, updateSysUser, deleteUser } from '@/api/user'
 
 export default {
   data() {
@@ -120,6 +123,17 @@ export default {
       this.dialogInfo.endDate = this.dateFtt('yyyy-MM-dd hh:mm:ss', new Date(this.dialogInfo.endDate))
       updateSysUser(this.dialogInfo).then(response => {
         this.dialogUpdateVisible = false
+        if (response.code === 1) {
+          this.$message({
+            message: '操作成功',
+            type: 'success'
+          })
+          this.getUserList()
+        }
+      })
+    },
+    deleteData(row) {
+      deleteUser(row.id).then(response => {
         if (response.code === 1) {
           this.$message({
             message: '操作成功',

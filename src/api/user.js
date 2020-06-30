@@ -36,3 +36,10 @@ export function updateSysUser(data) {
     data
   })
 }
+
+export function deleteUser(id) {
+  return request({
+    url: '/user/id/' + id,
+    method: 'delete'
+  })
+}
