@@ -87,7 +87,11 @@ export default {
       this.dialogUpdateVisible = true
     },
     updateData() {
-      updateAccount(this.dialogInfo).then(response => {
+      var rq = {}
+      rq.type = this.dialogInfo.type
+      rq.username = this.dialogInfo.username
+      rq.password = this.dialogInfo.password
+      updateAccount(rq).then(response => {
         this.dialogUpdateVisible = false
         if (response.code === 1) {
           this.$message({
